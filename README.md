@@ -5,7 +5,7 @@
 ### About:
 While working on my separate COVID19 Contact Tracing app, I decided to incorporate one of the features in the app with Twilio's programmable messaging platform to allow users to get data about the spread of COVID-19 in their area by simply texting their zip code to the bot. 
 
-#### Flow chart of the text message cycle and responses (code in messageFlow.json)
+#### Flow chart of the text message cycle and responses (code in ```messageFlow.json```)
 
 ![flowimage](../master/TwilioFlowImage.png)
 
@@ -13,4 +13,4 @@ Following the trigger from the user, the bot sends back a welcome message asking
 
 #### Function to receive data 
 
-I have uploaded this function's code to the getDataByZipcode file in this repository. This function gets the zip code from the user's submission and then sends a GET request to an external API (http://localcoviddata.com) with the zipcode and the amount of days to query as parameters. This API returns results by county within a zipcode so my function iterates over each of these counties and sums both their death and positive case count currently and a week ago. It finds the difference between these values to provide the user with how many new positive cases and how many new deaths have occurred within the last week.
+I have uploaded this function's code to the ```getDataByZipcode.js``` file in this repository. This function gets the zip code from the user's submission and then sends a GET request to an external API (http://localcoviddata.com) with the zipcode and the amount of days to query as parameters. This API returns results by county within a zipcode so my function iterates over each of these counties and sums both their death and positive case count currently and a week ago. It finds the difference between these values to provide the user with how many new positive cases and how many new deaths have occurred within the last week.
