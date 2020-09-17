@@ -1,0 +1,245 @@
+{
+  "description": "A New Flow",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "next": "zipcode_prompt",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingRequest"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -480,
+          "y": -100
+        }
+      }
+    },
+    {
+      "name": "zipcode_prompt",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "Check_For_Valid_ZipCode",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -440,
+          "y": 60
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Hello, Welcome to the COVID-19 Numbers Bot. \n\nPlease reply with your zip code for some recent numbers on how your area is dealing with the COVID-19 pandemic.",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "getData",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "Send_back_data",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 290,
+          "y": 310
+        },
+        "parameters": [
+          {
+            "value": "{{widgets.zipcode_prompt.inbound.Body}}",
+            "key": "zipcode"
+          }
+        ],
+        "url": "https://sienna-monkey-8443.twil.io/getDataFromZip"
+      }
+    },
+    {
+      "name": "Send_back_data",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 300,
+          "y": 520
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "{{widgets.getData.parsed.newPositives}} new COVID-19 cases and {{widgets.getData.parsed.newDeaths}} new COVID-19 related deaths have been reported in your area within the last week.\n\nThank you for using this bot and I hope it helps you.\n\n- Utkarsh Singh"
+      }
+    },
+    {
+      "name": "Check_For_Valid_ZipCode",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "error_message_tryagain",
+          "event": "noMatch"
+        },
+        {
+          "next": "getData",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value regex ^[0-9]{5}(?:-[0-9]{4})?$",
+              "arguments": [
+                "{{widgets.zipcode_prompt.inbound.Body}}"
+              ],
+              "type": "regex",
+              "value": "^[0-9]{5}(?:-[0-9]{4})?$"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.zipcode_prompt.inbound.Body}}",
+        "offset": {
+          "x": -400,
+          "y": 310
+        }
+      }
+    },
+    {
+      "name": "error_message_tryagain",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "Check_For_Corrected_ZipCode",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -810,
+          "y": 320
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "It looks like you submitted an invalid zip code. Please try again and send us a valid zip code.",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "Check_For_Corrected_ZipCode",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "error_message_tryagain",
+          "event": "noMatch"
+        },
+        {
+          "next": "getData_correctedinfo",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value regex ^[0-9]{5}(?:-[0-9]{4})?$",
+              "arguments": [
+                "{{widgets.error_message_tryagain.inbound.Body}}"
+              ],
+              "type": "regex",
+              "value": "^[0-9]{5}(?:-[0-9]{4})?$"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.error_message_tryagain.inbound.Body}}",
+        "offset": {
+          "x": -1040,
+          "y": 570
+        }
+      }
+    },
+    {
+      "name": "getData_correctedinfo",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "Send_back_data_correctedinfo",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -650,
+          "y": 790
+        },
+        "parameters": [
+          {
+            "value": "{{widgets.error_message_tryagain.inbound.Body}}",
+            "key": "zipcode"
+          }
+        ],
+        "url": "https://sienna-monkey-8443.twil.io/getDataFromZip"
+      }
+    },
+    {
+      "name": "Send_back_data_correctedinfo",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -640,
+          "y": 1010
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "{{widgets.getData_correctedinfo.parsed.newPositives}} new COVID-19 cases and {{widgets.getData_correctedinfo.parsed.newDeaths}} new COVID-19 related deaths have been reported in your area within the last week.\n\nThank you for using this bot and I hope it helps you.\n\n- Utkarsh Singh"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}
