@@ -1,4 +1,4 @@
-# COVID Numbers Twilio
+# COVID-19 Text Bot using Twilio
 
 ## To use this application, simply text anything to ```720-706-7515``` to get started.
 
