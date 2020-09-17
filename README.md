@@ -2,8 +2,6 @@
 
 ## To use this application, simply text anything to ```720-706-7515``` to get started.
 
-![iphonescreenshot](../master/iphone_screenshot.png)
-
 ### About:
 While working on my separate COVID19 Contact Tracing app, I decided to incorporate one of the features in the app with Twilio's programmable messaging platform to allow users to get data about the spread of COVID-19 in their area by simply texting their zip code to the bot. 
 
